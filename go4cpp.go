@@ -39,6 +39,7 @@ func FnCallBackCmdGO(cmdId C.int32_t, data *C.char, len C.int32_t) {
 		if cb, success := fun.(FunCallBackNormal); success {
 			cb(s)
 		}
+		mapCmdFun.Delete(iCmdId)
 	}
 }
 
