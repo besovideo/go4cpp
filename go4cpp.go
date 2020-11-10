@@ -12,11 +12,13 @@ void FnCallBackCmdGO(int32_t cmdId, char* data, int32_t len);
 */
 import "C"
 import (
+	"context"
 	"log"
 	"math"
 	"reflect"
 	"sync"
 	"sync/atomic"
+	"time"
 	"unsafe"
 )
 
@@ -32,14 +34,18 @@ func FnCallBackLibGO(data *C.char, len C.int32_t) {
 func FnCallBackCmdGO(cmdId C.int32_t, data *C.char, len C.int32_t) {
 	var s []byte = C.GoBytes(unsafe.Pointer(data), len)
 
-	log.Println(string(s))
+	//log.Println(string(s))
 
 	var iCmdId = int32(cmdId)
 	if fun, ok := mapCmdFun.Load(iCmdId); ok {
 		if cb, success := fun.(FunCallBackNormal); success {
 			cb(s)
+		} else {
+			log.Println("convert function fail")
 		}
 		mapCmdFun.Delete(iCmdId)
+	} else {
+		log.Printf("get cmdId %v function fail\n", iCmdId)
 	}
 }
 
@@ -59,8 +65,27 @@ func ReleaseLibrary() {
 
 // Command 调用动态库函数
 func Command(data []byte, fun FunCallBackNormal) int {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(30))
+	defer cancel()
+
+	return CommandWithContext(ctx, data, fun)
+}
+
+// Command 调用动态库函数
+func CommandWithContext(ctx context.Context, data []byte, fun FunCallBackNormal) int {
 	var cmdId = getCmdId()
 	mapCmdFun.Store(cmdId, fun)
+
+	go func() {
+		select {
+		case <-ctx.Done():
+			// 结束时, 删除通知
+			if _, ok := mapCmdFun.Load(cmdId); ok {
+				mapCmdFun.Delete(cmdId)
+				fun([]byte("timeout"))
+			}
+		}
+	}()
 
 	var rc C.int32_t = C.Go4CInitCommand_C(
 		(*C.char)(unsafe.Pointer(
