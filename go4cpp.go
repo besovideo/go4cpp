@@ -83,7 +83,7 @@ func CommandWithContext(ctx context.Context, data []byte, fun FunCallBackNormal)
 			// 结束时, 删除通知
 			if _, ok := mapCmdFun.Load(cmdId); ok {
 				mapCmdFun.Delete(cmdId)
-				fun(fmt.Errorf("timeout"), nil)
+				fun(fmt.Errorf("command context Done()"), nil)
 			}
 		}
 	}()
