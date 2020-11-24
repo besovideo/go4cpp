@@ -13,6 +13,7 @@ void FnCallBackCmdGO(int32_t cmdId, char* data, int32_t len);
 import "C"
 import (
 	"context"
+	"fmt"
 	"log"
 	"math"
 	"reflect"
@@ -27,7 +28,7 @@ func FnCallBackLibGO(data *C.char, len C.int32_t) {
 	//var s = C.GoStringN(data, len)
 	var s []byte = C.GoBytes(unsafe.Pointer(data), len)
 
-	defaultCallback(s)
+	defaultCallback(nil, s)
 }
 
 //export FnCallBackCmdGO
@@ -38,12 +39,12 @@ func FnCallBackCmdGO(cmdId C.int32_t, data *C.char, len C.int32_t) {
 
 	var iCmdId = int32(cmdId)
 	if fun, ok := mapCmdFun.Load(iCmdId); ok {
+		mapCmdFun.Delete(iCmdId)
 		if cb, success := fun.(FunCallBackNormal); success {
-			cb(s)
+			cb(nil, s)
 		} else {
 			log.Println("convert function fail")
 		}
-		mapCmdFun.Delete(iCmdId)
 	} else {
 		log.Printf("get cmdId %v function fail\n", iCmdId)
 	}
@@ -82,7 +83,7 @@ func CommandWithContext(ctx context.Context, data []byte, fun FunCallBackNormal)
 			// 结束时, 删除通知
 			if _, ok := mapCmdFun.Load(cmdId); ok {
 				mapCmdFun.Delete(cmdId)
-				fun([]byte("timeout"))
+				fun(fmt.Errorf("timeout"), nil)
 			}
 		}
 	}()
@@ -98,13 +99,13 @@ func CommandWithContext(ctx context.Context, data []byte, fun FunCallBackNormal)
 }
 
 func init() {
-	defaultCallback = func(data []byte) {
+	defaultCallback = func(err error, data []byte) {
 		log.Printf(">> %v\n", string(data))
 	}
 }
 
 // FunCallBackNormal 回调函数
-type FunCallBackNormal func(data []byte)
+type FunCallBackNormal func(err error, data []byte)
 
 // 用于命令回调函数的辅助
 var (
