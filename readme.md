@@ -14,13 +14,13 @@ import (
 )
 
 func main() {
-	go4cpp.InitLibrary(func(data []byte) {
-		log.Printf("=== %v", string(data))
+	go4cpp.InitLibrary(func(err error, data []byte) {
+		log.Printf("=== %v %v", err, string(data))
 	})
 
 	var data = fmt.Sprintf("%v", time.Now().Format(time.RFC3339))
-	go4cpp.Command([]byte(data), func(data []byte) {
-		log.Println("+++" + string(data))
+	go4cpp.Command([]byte(data), func(err error, data []byte) {
+		log.Printf("+++ %v %v", err, string(data))
 	})
 
 	go4cpp.ReleaseLibrary()
