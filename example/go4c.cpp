@@ -5,9 +5,9 @@
 
 FnCallBackLib_C g_callback = 0;
 
-GO_C_LIB_API int32_t Go4CInit_C(FnCallBackLib_C callback)
+GO_C_LIB_API int32_t Go4CInit_C(char* data, int32_t len, FnCallBackLib_C callback)
 {
-    printf("hello world\n");
+    printf("hello world [%s][%d]\n", data, len);
     callback((char*)"hello", 4);
     g_callback = callback;
 

@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	go4cpp.InitLibrary(func(err error, data []byte) {
+	go4cpp.InitLibrary([]byte("go data"), func(err error, data []byte) {
 		log.Printf("=== %v %v", err, string(data))
 	})
 
@@ -40,12 +40,10 @@ export LD_LIBRARY_PATH=.
 
 输出
 ```
-$ go build -o hello.exe
-$ ./hello.exe
-hello world
-2020/10/30 10:25:52 === hell
-hello cmd: 2020-10-30T10:25:52+08:00
-2020/10/30 10:25:52 2020-10-30T10:25:52+08:00
-2020/10/30 10:25:52 +++2020-10-30T10:25:52+08:00
-2020/10/30 10:25:52 === 2020-10-30T10:25:52+08:00
+hello world [go data][7]
+2020/12/01 08:58:54 === <nil> hell
+hello cmd: 2020-12-01T08:58:54+08:00
+2020/12/01 08:58:54 +++ <nil> 2020-12-01T08:58:54+08:00
+2020/12/01 08:58:54 === <nil> 2020-12-01T08:58:54+08:00
+
 ```

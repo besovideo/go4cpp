@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	go4cpp.InitLibrary(func(err error, data []byte) {
+	go4cpp.InitLibrary([]byte("go data"), func(err error, data []byte) {
 		log.Printf("=== %v %v", err, string(data))
 	})
 

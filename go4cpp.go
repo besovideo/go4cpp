@@ -51,10 +51,14 @@ func FnCallBackCmdGO(cmdId C.int32_t, data *C.char, len C.int32_t) {
 }
 
 // InitLibrary 初始化
-func InitLibrary(fun FunCallBackNormal) int {
+func InitLibrary(data []byte, fun FunCallBackNormal) int {
 	defaultCallback = fun
 
-	var rc C.int32_t = C.Go4CInit_C(C.FnCallBackLib_C(C.FnCallBackLibGO))
+	var rc C.int32_t = C.Go4CInit_C(
+		(*C.char)(unsafe.Pointer(
+			(*reflect.StringHeader)(unsafe.Pointer(&data)).Data)),
+		C.int32_t(len(data)),
+		C.FnCallBackLib_C(C.FnCallBackLibGO))
 
 	return int(rc)
 }

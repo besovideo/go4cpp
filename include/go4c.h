@@ -24,7 +24,7 @@ extern "C" {
     typedef void (*FnCallBackLib_C)(char* data, int32_t len);
     typedef void (*FnCallBackCmd_C)(int32_t cmdId, char* data, int32_t len);
 
-    GO_C_LIB_API int32_t Go4CInit_C(FnCallBackLib_C callback);
+    GO_C_LIB_API int32_t Go4CInit_C(char* data, int32_t len, FnCallBackLib_C callback);
 
     GO_C_LIB_API int32_t Go4CRelease_C();
 
